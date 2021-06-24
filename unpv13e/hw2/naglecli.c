@@ -6,6 +6,8 @@ main(int argc, char **argv)
 	int					sockfd;
 	struct sockaddr_in	servaddr;
 
+    char sendline[MAXLINE], recvline[MAXLINE];
+
 	if (argc != 2)
 		err_quit("usage: tcpcli <IPaddress>");
 
@@ -18,7 +20,15 @@ main(int argc, char **argv)
 
 	Connect(sockfd, (SA *) &servaddr, sizeof(servaddr));
 
-	str_cli(stdin, sockfd);		/* do it all */
+    int n = 0;
+    while ((sendline[n++] = getchar()) != '\n') //get text from command line
+        ;
 
+    Writen(sockfd, sendline, strlen(sendline));
+
+    if (Readline(sockfd, recvline, MAXLINE) == 0)
+        err_quit("str_cli: server terminated prematurely");
+
+    printf("recvline is: %s\n", recvline);
 	exit(0);
 }
