@@ -2,7 +2,7 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* CPU, vendor, and operating system */
-#define CPU_VENDOR_OS "i686-pc-linux-gnu"
+#define CPU_VENDOR_OS "x86_64-unknown-linux-gnu"
 
 /* Define to 1 if <netdb.h> defines struct addrinfo */
 #define HAVE_ADDRINFO_STRUCT 1
@@ -71,7 +71,7 @@
 #define HAVE_IF_NAMETOINDEX_PROTO 1
 
 /* Define to 1 if you have the `inet6_rth_init' function. */
-/* #undef HAVE_INET6_RTH_INIT */
+#define HAVE_INET6_RTH_INIT 1
 
 /* Define to 1 if you have the `inet_aton' function. */
 #define HAVE_INET_ATON 1
@@ -137,7 +137,7 @@
 #define HAVE_PSELECT 1
 
 /* define if pselect prototype is in <sys/stat.h> */
-/* #undef HAVE_PSELECT_PROTO */
+#define HAVE_PSELECT_PROTO 1
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #define HAVE_PTHREAD_H 1
@@ -161,7 +161,7 @@
 #define HAVE_SOCKATMARK 1
 
 /* define if sockatmark prototype is in <sys/socket.h> */
-/* #undef HAVE_SOCKATMARK_PROTO */
+#define HAVE_SOCKATMARK_PROTO 1
 
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
@@ -176,7 +176,7 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <stropts.h> header file. */
-#define HAVE_STROPTS_H 1
+/* #undef HAVE_STROPTS_H */
 
 /* Define to 1 if `ifr_mtu' is member of `struct ifreq'. */
 #define HAVE_STRUCT_IFREQ_IFR_MTU 1
@@ -314,7 +314,7 @@
 #define t_scalar_t int32_t
 
 /* unsigned scalar type */
-/* #undef t_uscalar_t */
+#define t_uscalar_t uint32_t
 
 /* 16 bit unsigned type */
 /* #undef uint16_t */
