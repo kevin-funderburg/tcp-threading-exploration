@@ -1,14 +1,28 @@
 #include	"unp.h"
+#include    <netinet/tcp.h>
 
 int
 main(int argc, char **argv)
 {
-	int					listenfd, connfd;
+    printf("...starting server...\n");
+
+	int					listenfd, connfd, nodelay, len;
 	pid_t				childpid;
 	socklen_t			clilen;
 	struct sockaddr_in	cliaddr, servaddr;
 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
+
+    len = sizeof(nodelay);
+    Getsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, &nodelay, &len);
+    printf("defaults: TCP_NODELAY = %d\n", nodelay);
+
+    nodelay = 1;
+    Setsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, &nodelay, sizeof(nodelay));
+    len = sizeof(nodelay);
+    Getsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, &nodelay, &len);
+    printf("TCP_NODELAY = %d (after setting to 1)\n", nodelay);
+
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
