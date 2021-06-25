@@ -7,7 +7,7 @@ main(int argc, char **argv)
     printf("...starting server...\n");
 
 	int					listenfd, connfd, nodelay, len;
-	pid_t				childpid;
+	//pid_t				childpid;
 	socklen_t			clilen;
 	struct sockaddr_in	cliaddr, servaddr;
 
