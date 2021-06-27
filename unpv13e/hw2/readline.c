@@ -27,6 +27,7 @@ typedef struct {
 static ssize_t
 my_read(Rline *tsd, int fd, char *ptr)
 {
+    printf("...my_read()...\n");
 	if (tsd->rl_cnt <= 0) {
 again:
 		if ( (tsd->rl_cnt = read(fd, tsd->rl_buf, MAXLINE)) < 0) {
@@ -34,12 +35,14 @@ again:
 				goto again;
 			return(-1);
 		} else if (tsd->rl_cnt == 0)
+            printf("==>BREAKPOINT==>\n");
 			return(0);
 		tsd->rl_bufptr = tsd->rl_buf;
 	}
 
 	tsd->rl_cnt--;
 	*ptr = *tsd->rl_bufptr++;
+    printf("...done...\n");
 	return(1);
 }
 
@@ -47,23 +50,27 @@ ssize_t
 readline(int fd, void *vptr, size_t maxlen)
 {
     printf("...readline()...\n");
+
 	size_t		n, rc;
 	char	c, *ptr;
 	Rline	*tsd;
 
+    printf("\tpreparing to execute Pthread_once\n");
 	Pthread_once(&rl_once, readline_once);
 	if ( (tsd = pthread_getspecific(rl_key)) == NULL) {
+        printf("\tpointer is NULL, so callocing by init to 0\n");
 		tsd = Calloc(1, sizeof(Rline));		/* init to 0 */
 		Pthread_setspecific(rl_key, tsd);
 	}
-
+    
 	ptr = vptr;
 	for (n = 1; n < maxlen; n++) {
 		if ( (rc = my_read(tsd, fd, &c)) == 1) {
-			*ptr++ = c;
+            *ptr++ = c;
 			if (c == '\n')
 				break;
 		} else if (rc == 0) {
+            printf("EOF\n");
 			*ptr = 0;
 			return(n - 1);		/* EOF, n - 1 bytes read */
 		} else
@@ -71,6 +78,7 @@ readline(int fd, void *vptr, size_t maxlen)
 	}
 
 	*ptr = 0;
+    printf("...done...\n");
 	return(n);
 }
 /* end readline2 */
@@ -78,6 +86,8 @@ readline(int fd, void *vptr, size_t maxlen)
 ssize_t
 Readline(int fd, void *ptr, size_t maxlen)
 {
+    printf("...Readline()...\n");
+
 	ssize_t		n;
 
 	if ( (n = readline(fd, ptr, maxlen)) < 0)

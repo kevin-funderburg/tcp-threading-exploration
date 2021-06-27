@@ -1,4 +1,5 @@
 #include	"unp.h"
+#include    "strclithread.c"
 
 int
 main(int argc, char **argv)
