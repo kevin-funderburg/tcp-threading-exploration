@@ -5,6 +5,8 @@ static void	*doit(void *);		/* each thread executes this function */
 int
 main(int argc, char **argv)
 {
+    printf("...starting server...\n\n");
+
 	int				listenfd, connfd;
 	pthread_t		tid;
 	socklen_t		addrlen, len;
@@ -22,6 +24,7 @@ main(int argc, char **argv)
 	for ( ; ; ) {
 		len = addrlen;
 		connfd = Accept(listenfd, cliaddr, &len);
+        printf("creating thread\n");
 		Pthread_create(&tid, NULL, &doit, (void *) connfd);
 	}
 }
@@ -29,8 +32,10 @@ main(int argc, char **argv)
 static void *
 doit(void *arg)
 {
+    printf("...doit()...\n");
 	Pthread_detach(pthread_self());
-	str_echo((int) arg);	/* same function as before */
+	//str_echo((int) arg);	/* same function as before */
+
 	Close((int) arg);		/* done with connected socket */
 	return(NULL);
 }
