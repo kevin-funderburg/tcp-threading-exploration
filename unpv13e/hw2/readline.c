@@ -28,7 +28,18 @@ static ssize_t
 my_read(Rline *tsd, int fd, char *ptr)
 {
     printf("...my_read()...\n");
+
+    //strcpy(tsd->rl_buf, "a test line");
+    //tsd->rl_cnt = 1;
+    //tsd->rl_bufptr = tsd->rl_buf;
+    
+    printf("tsd->rl_cnt: %d\n", tsd->rl_cnt);
+    printf("tsd->rl_buf: %s\n", tsd->rl_buf);
+
+
+    //read(fd, tsd->rl_buf, MAXLINE);
 	if (tsd->rl_cnt <= 0) {
+        printf("tsd->rl_cnt <= 0\n");
 again:
 		if ( (tsd->rl_cnt = read(fd, tsd->rl_buf, MAXLINE)) < 0) {
 			if (errno == EINTR)
@@ -42,6 +53,7 @@ again:
 
 	tsd->rl_cnt--;
 	*ptr = *tsd->rl_bufptr++;
+
     printf("...done...\n");
 	return(1);
 }
@@ -56,13 +68,19 @@ readline(int fd, void *vptr, size_t maxlen)
 	Rline	*tsd;
 
     printf("\tpreparing to execute Pthread_once\n");
+    printf("rl_key before Pthread_once: %d\n", rl_key);
+
 	Pthread_once(&rl_once, readline_once);
 	if ( (tsd = pthread_getspecific(rl_key)) == NULL) {
-        printf("\tpointer is NULL, so callocing by init to 0\n");
+        //since the value of the pointer at rl_key is NULL, we will malloc
+        //the memory needed
 		tsd = Calloc(1, sizeof(Rline));		/* init to 0 */
+        //now we set the thread-specific data pointer for this key to point 
+        //to the memory just allocated
 		Pthread_setspecific(rl_key, tsd);
 	}
     
+    printf("rl_key: %d\n", rl_key);
 	ptr = vptr;
 	for (n = 1; n < maxlen; n++) {
 		if ( (rc = my_read(tsd, fd, &c)) == 1) {
