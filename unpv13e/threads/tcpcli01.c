@@ -3,6 +3,8 @@
 int
 main(int argc, char **argv)
 {
+    printf("...starting client...\n", );
+
 	int		sockfd;
 
 	if (argc != 3)

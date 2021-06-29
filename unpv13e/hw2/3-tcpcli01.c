@@ -44,8 +44,6 @@ my_read(Rline *tsd, int fd, char *ptr)
     printf("tsd->rl_cnt: %d\n", tsd->rl_cnt);
     printf("tsd->rl_buf: %s\n", tsd->rl_buf);
 
-
-    //read(fd, tsd->rl_buf, MAXLINE);
 	if (tsd->rl_cnt <= 0) {
         printf("tsd->rl_cnt <= 0\n");
 again:
@@ -121,7 +119,21 @@ Readline(int fd, void *ptr, size_t maxlen)
 	return(n);
 }
 
-
+//void
+//str_cli(FILE *fp, int sockfd)
+//{
+//    char sendline[MAXLINE], recvline[MAXLINE];
+//
+//    while (Fgets(sendline, MAXLINE, fp) != NULL) {
+//
+//        Writen(sockfd, sendline, strlen(sendline));
+//
+//        if (Readline(sockfd, recvline, MAXLINE) == 0)
+//            err_quit("str_cli: server terminated prematurely");
+//
+//        Fputs(recvline, stdout);
+//    }
+//}
 
 void
 str_cli(FILE *fp_arg, int sockfd_arg)
@@ -134,6 +146,7 @@ str_cli(FILE *fp_arg, int sockfd_arg)
 	sockfd = sockfd_arg;	/* copy arguments to externals */
 	fp = fp_arg;
 
+    printf("creating a thread to start in copto()\n");
 	Pthread_create(&tid, NULL, copyto, NULL);
 
 	while (Readline(sockfd, recvline, MAXLINE) > 0)
@@ -143,11 +156,16 @@ str_cli(FILE *fp_arg, int sockfd_arg)
 void *
 copyto(void *arg)
 {
+    printf("...copyto()...\n");
+
 	char	sendline[MAXLINE];
 
-	while (Fgets(sendline, MAXLINE, fp) != NULL)
+    printf("should stop here for input\n");
+	while (Fgets(sendline, MAXLINE, fp) != NULL) {
+        printf("in while loop\n");
 		Writen(sockfd, sendline, strlen(sendline));
-
+    }
+    printf("about to shutdown\n");
 	Shutdown(sockfd, SHUT_WR);	/* EOF on stdin, send FIN */
 
 	return(NULL);

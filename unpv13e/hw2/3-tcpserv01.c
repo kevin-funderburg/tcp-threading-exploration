@@ -33,8 +33,9 @@ static void *
 doit(void *arg)
 {
     printf("...doit()...\n");
+
 	Pthread_detach(pthread_self());
-	//str_echo((int) arg);	/* same function as before */
+	str_echo((int) arg);	/* same function as before */
 
 	Close((int) arg);		/* done with connected socket */
 	return(NULL);
