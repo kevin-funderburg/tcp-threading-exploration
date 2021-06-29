@@ -12,6 +12,11 @@ static pthread_once_t	diff_once = PTHREAD_ONCE_INIT;
 static int	sockfd;		/* global for both threads to access */
 static FILE	*fp;
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//these functions were created to test the creation of a different 
+//thread specific data item
+//
 static void
 diff_destructor(void *ptr)
 {
@@ -27,6 +32,9 @@ different_once(void)
 typedef struct {
     char buff[MAXLINE];
 } diff_data;
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 static void
 readline_destructor(void *ptr)
@@ -48,6 +56,7 @@ typedef struct {
 /* end readline1 */
 
 /* include readline2 */
+//ssize_t
 static ssize_t
 my_read(Rline *tsd, int fd, char *ptr)
 {
@@ -117,7 +126,7 @@ readline(int fd, void *vptr, size_t maxlen)
 ssize_t
 Readline(int fd, void *ptr, size_t maxlen)
 {
-    printf("...Readline()...\n");
+    //printf("...Readline()...\n");
 
 	ssize_t		n;
 
@@ -129,7 +138,7 @@ Readline(int fd, void *ptr, size_t maxlen)
 void
 str_cli(FILE *fp_arg, int sockfd_arg)
 {
-    printf("...str_cli()...\n\n");
+    //printf("...str_cli()...\n\n");
 
 	char		recvline[MAXLINE];
 	pthread_t	tid;
@@ -137,7 +146,7 @@ str_cli(FILE *fp_arg, int sockfd_arg)
 	sockfd = sockfd_arg;	/* copy arguments to externals */
 	fp = fp_arg;
 
-    printf("creating a thread to start in copyto()\n");
+    //printf("creating a thread to start in copyto()\n");
 	Pthread_create(&tid, NULL, copyto, NULL);
 
 	while (Readline(sockfd, recvline, MAXLINE) > 0) {
