@@ -36,6 +36,10 @@ Problem 2 contains 5 parts, they can be tested as follows
 
 - Begin server with `./3-tcpserv01 0.0.0.0 9999`
 - Begin client with `./3-tcpcli01 0.0.0.0 9999`
+
+## Notes
+
+View the project summary for more detailed explanations of each part.
  
 ## Licensing & thanks
 

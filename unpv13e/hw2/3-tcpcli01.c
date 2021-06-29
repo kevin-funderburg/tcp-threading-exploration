@@ -5,12 +5,28 @@
 void	*copyto(void *);
 
 
-static pthread_key_t	rl_key;
+static pthread_key_t	rl_key, diff_key;
 static pthread_once_t	rl_once = PTHREAD_ONCE_INIT;
+static pthread_once_t	diff_once = PTHREAD_ONCE_INIT;
 
 static int	sockfd;		/* global for both threads to access */
 static FILE	*fp;
 
+static void
+diff_destructor(void *ptr)
+{
+    free(ptr);
+}
+
+static void
+different_once(void)
+{
+ 	Pthread_key_create(&diff_key, diff_destructor);
+}
+
+typedef struct {
+    char buff[MAXLINE];
+} diff_data;
 
 static void
 readline_destructor(void *ptr)
@@ -36,30 +52,21 @@ static ssize_t
 my_read(Rline *tsd, int fd, char *ptr)
 {
     //printf("...my_read()...\n");
-
-    //printf("tsd->rl_cnt: %d\n", tsd->rl_cnt);
-    //printf("tsd->rl_buf: %s\n", tsd->rl_buf);
-
 	if (tsd->rl_cnt <= 0) {
-        //printf("tsd->rl_cnt <= 0\n");
 again:
-        //printf("expecting to read message from server here\n");
 		if ( (tsd->rl_cnt = read(fd, tsd->rl_buf, MAXLINE)) < 0) {
 			if (errno == EINTR)
 				goto again;
 			return(-1);
 		} else if (tsd->rl_cnt == 0) {
-            //printf("==>BREAKPOINT==>\n");
 			return(0);
         }
 		tsd->rl_bufptr = tsd->rl_buf;
 	}
 
-    //printf("tsd->rl_buf: %s\n", tsd->rl_buf);
 	tsd->rl_cnt--;
 	*ptr = *tsd->rl_bufptr++;
 
-    //printf("...done...\n");
 	return(1);
 }
 
@@ -84,11 +91,11 @@ readline(int fd, void *vptr, size_t maxlen)
         //to the memory just allocated
 		Pthread_setspecific(rl_key, tsd);
 	}
-    
-    //printf("rl_key: %d\n", rl_key);
-	ptr = vptr;
+
+    printf("rl_key: %d\n", rl_key);
+
+    ptr = vptr;
 	for (n = 1; n < maxlen; n++) {
-        //printf("inside for loop\n");
 		if ( (rc = my_read(tsd, fd, &c)) == 1) {
             *ptr++ = c;
 			if (c == '\n')
@@ -118,22 +125,6 @@ Readline(int fd, void *ptr, size_t maxlen)
 		err_sys("readline error");
 	return(n);
 }
-
-//void
-//str_cli(FILE *fp, int sockfd)
-//{
-//    char sendline[MAXLINE], recvline[MAXLINE];
-//
-//    while (Fgets(sendline, MAXLINE, fp) != NULL) {
-//
-//        Writen(sockfd, sendline, strlen(sendline));
-//
-//        if (Readline(sockfd, recvline, MAXLINE) == 0)
-//            err_quit("str_cli: server terminated prematurely");
-//
-//        Fputs(recvline, stdout);
-//    }
-//}
 
 void
 str_cli(FILE *fp_arg, int sockfd_arg)
@@ -179,12 +170,36 @@ main(int argc, char **argv)
 {
     printf("...starting client...\n");
 
+	diff_data	*diff_tsd;
+
 	int		sockfd;
 
 	if (argc != 3)
 		err_quit("usage: tcpcli <hostname> <service>");
 
 	sockfd = Tcp_connect(argv[1], argv[2]);
+
+    //////////////////////////////////////////////////////////////////////
+    //this is an attempt to make another thread specific data item 
+    //using a different key than the rl_key
+    //
+    //this thread specific data item will not perform any function, it
+    //will just contain a string for testing purposes
+    //
+    Pthread_once(&diff_once, different_once);
+	if ( (diff_tsd = pthread_getspecific(diff_key)) == NULL) {
+        //since the value of the pointer at diff_key is NULL, we will malloc
+        //the memory needed
+		diff_tsd = Calloc(1, sizeof(diff_data));		/* init to 0 */
+        //now we set the thread-specific data pointer for this key to point 
+        //to the memory just allocated
+		Pthread_setspecific(diff_key, diff_tsd);
+	}
+
+    printf("diff_key: %d\n", diff_key);
+    //setting the value of the second thread specific data item
+    strcpy(diff_tsd->buff, "a different string");
+    //////////////////////////////////////////////////////////////////////
 
 	str_cli(stdin, sockfd);		/* do it all */
 
