@@ -5,12 +5,16 @@ static void	*doit(void *);		/* each thread executes this function */
 void
 str_echo(int sockfd)
 {
+    printf("...str_echo()...\n");
+    
 	ssize_t		n;
 	char		buf[MAXLINE];
 
 again:
-	while ( (n = read(sockfd, buf, MAXLINE)) > 0)
+	while ( (n = read(sockfd, buf, MAXLINE)) > 0) {
+        printf("FROM CLIENT: %s\n", buf);
 		Writen(sockfd, buf, n);
+    }
 
 	if (n < 0 && errno == EINTR)
 		goto again;
@@ -49,10 +53,25 @@ static void *
 doit(void *arg)
 {
     printf("...doit()...\n");
-
 	Pthread_detach(pthread_self());
 	str_echo((int) arg);	/* same function as before */
-
 	Close((int) arg);		/* done with connected socket */
 	return(NULL);
 }
+
+
+//static void *
+//doit(void *arg)
+//{
+//    printf("...doit()...\n");
+//    
+//    int connfd;
+//    connfd = *((int *) arg);
+//    free(arg);
+//
+//	Pthread_detach(pthread_self());
+//	str_echo(connfd);	/* same function as before */
+//
+//	Close(connfd);		/* done with connected socket */
+//	return(NULL);
+//}

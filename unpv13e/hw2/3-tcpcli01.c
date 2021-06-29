@@ -35,46 +35,45 @@ typedef struct {
 static ssize_t
 my_read(Rline *tsd, int fd, char *ptr)
 {
-    printf("...my_read()...\n");
+    //printf("...my_read()...\n");
 
-    //strcpy(tsd->rl_buf, "a test line");
-    //tsd->rl_cnt = 1;
-    //tsd->rl_bufptr = tsd->rl_buf;
-    
-    printf("tsd->rl_cnt: %d\n", tsd->rl_cnt);
-    printf("tsd->rl_buf: %s\n", tsd->rl_buf);
+    //printf("tsd->rl_cnt: %d\n", tsd->rl_cnt);
+    //printf("tsd->rl_buf: %s\n", tsd->rl_buf);
 
 	if (tsd->rl_cnt <= 0) {
-        printf("tsd->rl_cnt <= 0\n");
+        //printf("tsd->rl_cnt <= 0\n");
 again:
+        //printf("expecting to read message from server here\n");
 		if ( (tsd->rl_cnt = read(fd, tsd->rl_buf, MAXLINE)) < 0) {
 			if (errno == EINTR)
 				goto again;
 			return(-1);
-		} else if (tsd->rl_cnt == 0)
-            printf("==>BREAKPOINT==>\n");
+		} else if (tsd->rl_cnt == 0) {
+            //printf("==>BREAKPOINT==>\n");
 			return(0);
+        }
 		tsd->rl_bufptr = tsd->rl_buf;
 	}
 
+    //printf("tsd->rl_buf: %s\n", tsd->rl_buf);
 	tsd->rl_cnt--;
 	*ptr = *tsd->rl_bufptr++;
 
-    printf("...done...\n");
+    //printf("...done...\n");
 	return(1);
 }
 
 ssize_t
 readline(int fd, void *vptr, size_t maxlen)
 {
-    printf("...readline()...\n");
+    //printf("...readline()...\n");
 
 	size_t		n, rc;
 	char	c, *ptr;
 	Rline	*tsd;
 
-    printf("\tpreparing to execute Pthread_once\n");
-    printf("rl_key before Pthread_once: %d\n", rl_key);
+    //printf("\tpreparing to execute Pthread_once\n");
+    //printf("rl_key before Pthread_once: %d\n", rl_key);
 
 	Pthread_once(&rl_once, readline_once);
 	if ( (tsd = pthread_getspecific(rl_key)) == NULL) {
@@ -86,9 +85,10 @@ readline(int fd, void *vptr, size_t maxlen)
 		Pthread_setspecific(rl_key, tsd);
 	}
     
-    printf("rl_key: %d\n", rl_key);
+    //printf("rl_key: %d\n", rl_key);
 	ptr = vptr;
 	for (n = 1; n < maxlen; n++) {
+        //printf("inside for loop\n");
 		if ( (rc = my_read(tsd, fd, &c)) == 1) {
             *ptr++ = c;
 			if (c == '\n')
@@ -102,7 +102,7 @@ readline(int fd, void *vptr, size_t maxlen)
 	}
 
 	*ptr = 0;
-    printf("...done...\n");
+    //printf("...done...\n");
 	return(n);
 }
 /* end readline2 */
@@ -146,11 +146,13 @@ str_cli(FILE *fp_arg, int sockfd_arg)
 	sockfd = sockfd_arg;	/* copy arguments to externals */
 	fp = fp_arg;
 
-    printf("creating a thread to start in copto()\n");
+    printf("creating a thread to start in copyto()\n");
 	Pthread_create(&tid, NULL, copyto, NULL);
 
-	while (Readline(sockfd, recvline, MAXLINE) > 0)
+	while (Readline(sockfd, recvline, MAXLINE) > 0) {
+        //printf("recvline: %s\n", recvline);
 		Fputs(recvline, stdout);
+    }
 }
 
 void *
@@ -160,9 +162,8 @@ copyto(void *arg)
 
 	char	sendline[MAXLINE];
 
-    printf("should stop here for input\n");
 	while (Fgets(sendline, MAXLINE, fp) != NULL) {
-        printf("in while loop\n");
+        //printf("SENDING TO SERVER: %s\n", sendline);
 		Writen(sockfd, sendline, strlen(sendline));
     }
     printf("about to shutdown\n");
