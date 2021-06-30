@@ -4,7 +4,7 @@ This project is an exploration of threads within networking.
 
 ## Configuration
 
-To compile, navigate to `unpv13e/hw2'
+To compile, navigate to `unpv13e/hw2`
 
 ### Make commands
 
