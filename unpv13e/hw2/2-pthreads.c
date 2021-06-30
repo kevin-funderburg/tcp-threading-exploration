@@ -97,8 +97,13 @@ int main(int argc, char *argv[])
         pthread_exit(NULL);
     } 
     else if (strcmp(argv[1], "5") == 0) {
-        printf("\ntesting if the process can continue if the main thread terminates normally\n\n");
+        printf("\ntesting if the process can continue if the main thread detaches itself\n\n");
         pthread_detach(pthread_self());
+        printf("printing test loop\n");
+        int i;
+        for (i = 0; i < 25; i++) {
+            printf("%d\n", i);
+        }
         return 0;
     }
     else
